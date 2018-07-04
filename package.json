@@ -1,0 +1,16 @@
+{
+  "name": "nodeoauth2server",
+  "version": "1.0.0",
+  "description": "Node Server for OAuth2 Authentication",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Shobhit Bhardwaj",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.16.3",
+    "mongoose": "^5.2.1",
+    "oauth2-server": "^3.0.0"
+  }
+}
