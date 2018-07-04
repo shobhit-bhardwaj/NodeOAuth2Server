@@ -2,7 +2,6 @@ var oauthServer = require('oauth2-server');
 var Request = oauthServer.Request;
 var Response = oauthServer.Response;
 var db = require('./mongodb');
-
 var oauth = require('./oauth')
 
 module.exports = function (app) {
@@ -13,7 +12,6 @@ module.exports = function (app) {
         oauth
             .token(request, response)
             .then(function (token) {
-                // Todo: remove unnecessary values in response
                 return res.json(token)
             }).catch(function (err) {
             return res.status(500).json(err)
@@ -25,8 +23,6 @@ module.exports = function (app) {
         var response = new Response(res);
 
         return oauth.authorize(request, response).then(function (success) {
-            //  if (req.body.allow !== 'true') return callback(null, false);
-            //  return callback(null, true, req.user);
             res.json(success)
         }).catch(function (err) {
             res.status(err.code || 500).json(err)

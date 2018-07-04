@@ -18,12 +18,10 @@ module.exports = function (options) {
 
         oauth.authenticate(request, response, options)
             .then(function (token) {
-                // Request is authorized.
                 req.user = token
                 next()
             })
             .catch(function (err) {
-                // Request is not authorized.
                 res.status(err.code || 500).json(err)
             });
     }

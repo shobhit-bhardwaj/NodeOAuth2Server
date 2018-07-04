@@ -9,7 +9,6 @@ var OAuthRefreshToken = mongodb.OAuthRefreshToken;
 function getAccessToken(bearerToken) {
     console.log("getAccessToken", bearerToken)
     return OAuthAccessToken
-    //User,OAuthClient
         .findOne({access_token: bearerToken})
         .populate('User')
         .populate('OAuthClient')
@@ -38,11 +37,8 @@ function getClient(clientId, clientSecret) {
             if (!client) return new Error("client not found");
             var clientWithGrants = client
             clientWithGrants.grants = ['authorization_code', 'password', 'refresh_token', 'client_credentials']
-            // Todo: need to create another table for redirect URIs
             clientWithGrants.redirectUris = [clientWithGrants.redirect_uri]
             delete clientWithGrants.redirect_uri
-            //clientWithGrants.refreshTokenLifetime = integer optional
-            //clientWithGrants.accessTokenLifetime  = integer optional
             return clientWithGrants
         }).catch(function (err) {
             console.log("getClient - Err: ", err)
@@ -69,13 +65,6 @@ function revokeAuthorizationCode(code) {
             authorization_code: code.code
         }
     }).then(function (rCode) {
-        //if(rCode) rCode.destroy();
-        /***
-         * As per the discussion we need set older date
-         * revokeToken will expected return a boolean in future version
-         * https://github.com/oauthjs/node-oauth2-server/pull/274
-         * https://github.com/oauthjs/node-oauth2-server/issues/290
-         */
         var expiredCode = code
         expiredCode.expiresAt = new Date('2015-05-28T06:59:53.000Z')
         return expiredCode
@@ -92,12 +81,6 @@ function revokeToken(token) {
         }
     }).then(function (rT) {
         if (rT) rT.destroy();
-        /***
-         * As per the discussion we need set older date
-         * revokeToken will expected return a boolean in future version
-         * https://github.com/oauthjs/node-oauth2-server/pull/274
-         * https://github.com/oauthjs/node-oauth2-server/issues/290
-         */
         var expiredToken = token
         expiredToken.refreshTokenExpiresAt = new Date('2015-05-28T06:59:53.000Z')
         return expiredToken
@@ -105,7 +88,6 @@ function revokeToken(token) {
         console.log("revokeToken - Err: ", err)
     });
 }
-
 
 function saveToken(token, client, user) {
     console.log("saveToken", token, client, user)
@@ -117,7 +99,7 @@ function saveToken(token, client, user) {
             User: user._id,
             scope: token.scope
         }),
-        token.refreshToken ? OAuthRefreshToken.create({ // no refresh token for client_credentials
+        token.refreshToken ? OAuthRefreshToken.create({
             refresh_token: token.refreshToken,
             expires: token.refreshTokenExpiresAt,
             OAuthClient: client._id,
@@ -127,12 +109,12 @@ function saveToken(token, client, user) {
 
     ])
         .then(function (resultsArray) {
-            return _.assign(  // expected to return client and user, but not returning
+            return _.assign(
                 {
                     client: client,
                     user: user,
-                    access_token: token.accessToken, // proxy
-                    refresh_token: token.refreshToken, // proxy
+                    access_token: token.accessToken,
+                    refresh_token: token.refreshToken,
                 },
                 token
             )
@@ -204,7 +186,6 @@ function getUserFromClient(client) {
 function getRefreshToken(refreshToken) {
     console.log("getRefreshToken", refreshToken)
     if (!refreshToken || refreshToken === 'undefined') return false
-//[OAuthClient, User]
     return OAuthRefreshToken
         .findOne({refresh_token: refreshToken})
         .populate('User')
@@ -254,4 +235,3 @@ module.exports = {
     //validateScope: validateScope,
     verifyScope: verifyScope,
 }
-
